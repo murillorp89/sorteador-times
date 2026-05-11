@@ -982,10 +982,12 @@ def proximo_jogo():
 
             .vermelho {
                 color: red;
+                -webkit-text-stroke: 0.8px black;
             }
 
             .verde {
                 color: green;
+                -webkit-text-stroke: 0.8px black;
             }
 
         </style>
