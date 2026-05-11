@@ -88,34 +88,6 @@ def carregar_historico():
         return []
 
 
-def salvar_historico(time_1, time_2, data_jogo):
-
-    historico = carregar_historico()
-
-    novo_jogo = {
-
-        "data": data_jogo,
-
-        "time_1": time_1,
-
-        "time_2": time_2
-    }
-
-    historico.insert(0, novo_jogo)
-
-    with open(
-        ARQUIVO_HISTORICO,
-        "w",
-        encoding="utf-8"
-    ) as arquivo:
-
-        json.dump(
-            historico,
-            arquivo,
-            ensure_ascii=False,
-            indent=4
-        )
-
 
 # ===================== MENU =====================
 
@@ -1093,6 +1065,34 @@ def proximo_jogo():
 
         </a>
 
+        <br><br>
+
+        <a
+            href="/limpar-proximo-jogo"
+
+            onclick="
+                return confirm(
+                    'Tem certeza que deseja descartar os times atuais?'
+                )
+            "
+        >
+
+            <button
+                style="
+                    background-color: red;
+                    color: white;
+                    padding: 20px;
+                    font-size: 26px;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                "
+            >
+                🗑️ DESCARTAR TIMES
+            </button>
+
+        </a>
+
 
         <br><br>
 
@@ -1500,7 +1500,7 @@ def novo_jogador():
 
     return render_template_string(html)
 
-@app.route("/excluir-jogador/<categoria>/<nome>")
+@app.route("/excluir-jogador/<categoria>/<path:nome>")
 def excluir_jogador(categoria, nome):
 
     dados = carregar_jogadores()
@@ -1512,7 +1512,7 @@ def excluir_jogador(categoria, nome):
     return redirect("/jogadores")
 
 @app.route(
-    "/editar-jogador/<categoria>/<nome>",
+    "/editar-jogador/<categoria>/<path:nome>",
     methods=["GET", "POST"]
 )
 def editar_jogador(categoria, nome):
@@ -1687,6 +1687,50 @@ def finalizar_jogo():
 
         <h1>
             ✅ Jogo movido para o histórico
+        </h1>
+
+        <br><br>
+
+        <a href="/">
+
+            <button
+                style="
+                    padding: 20px;
+                    font-size: 24px;
+                    cursor: pointer;
+                "
+            >
+                Voltar ao menu
+            </button>
+
+        </a>
+
+    </body>
+
+    </html>
+
+    """
+
+@app.route("/limpar-proximo-jogo")
+def limpar_proximo_jogo():
+
+    salvar_proximo_jogo({})
+
+    return """
+
+    <html>
+
+    <body
+        style="
+            font-family: Arial;
+            text-align: center;
+            padding: 40px;
+            font-size: 28px;
+        "
+    >
+
+        <h1>
+            🗑️ Times descartados com sucesso
         </h1>
 
         <br><br>
