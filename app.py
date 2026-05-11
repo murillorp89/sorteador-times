@@ -218,9 +218,10 @@ def pagina_sorteio():
             {% for jogador in goleiros %}
 
                 <input
-                    type="checkbox"
-                    name="goleiros"
-                    value="{{ jogador }}"
+                type="checkbox"
+                name="goleiros"
+                value="{{ jogador }}"
+                class="goleiro"
                 >
 
                 {{ jogador }}
@@ -236,9 +237,10 @@ def pagina_sorteio():
             {% for jogador in zagueiros %}
 
                 <input
-                    type="checkbox"
-                    name="zagueiros"
-                    value="{{ jogador }}"
+                type="checkbox"
+                name="zagueiros"
+                value="{{ jogador }}"
+                class="jogador"
                 >
 
                 {{ jogador }}
@@ -254,9 +256,10 @@ def pagina_sorteio():
             {% for jogador in atacantes %}
 
                 <input
-                    type="checkbox"
-                    name="atacantes"
-                    value="{{ jogador }}"
+                type="checkbox"
+                name="atacantes"
+                value="{{ jogador }}"
+                class="jogador"
                 >
 
                 {{ jogador }}
@@ -279,6 +282,8 @@ def pagina_sorteio():
             Voltar ao menu
         </a>
 
+    
+    
     </body>
 
     </html>
