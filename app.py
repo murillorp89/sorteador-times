@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template_string, redirect
 import random
 import json
 
@@ -21,6 +21,20 @@ def carregar_jogadores():
 
         return json.load(arquivo)
 
+def salvar_jogadores(dados):
+
+    with open(
+        ARQUIVO_JOGADORES,
+        "w",
+        encoding="utf-8"
+    ) as arquivo:
+
+        json.dump(
+            dados,
+            arquivo,
+            ensure_ascii=False,
+            indent=4
+        )
 
 def carregar_historico():
 
@@ -1018,6 +1032,8 @@ def historico():
 @app.route("/jogadores")
 def jogadores():
 
+    dados_jogadores = carregar_jogadores()
+
     html = """
 
     <html>
@@ -1045,18 +1061,27 @@ def jogadores():
             }
 
             h2 {
-                font-size: 34px;
+                margin-top: 50px;
+            }
+
+            .jogador {
+                margin-top: 18px;
+                margin-bottom: 18px;
+            }
+
+            button {
+                padding: 4px 10px;
+                font-size: 14px;
+                margin-left: 10px;
+                cursor: pointer;
+            }
+
+            a {
+                text-decoration: none;
+            }
+
+            .novo {
                 margin-top: 40px;
-            }
-
-            ul {
-                list-style-position: inside;
-                padding: 0;
-            }
-
-            li {
-                margin-top: 14px;
-                margin-bottom: 14px;
             }
 
         </style>
@@ -1067,47 +1092,53 @@ def jogadores():
 
         <h1>Jogadores Cadastrados</h1>
 
-        <h2>Goleiros</h2>
+        {% for categoria, lista in dados.items() %}
 
-        <ul>
+            <h2>
+                {{ categoria.title() }}
+            </h2>
 
-            {% for jogador in goleiros %}
+            {% for jogador in lista %}
 
-                <li>{{ jogador }}</li>
+                <div class="jogador">
 
-            {% endfor %}
+                    {{ jogador }}
 
-        </ul>
+                    <a href="/editar-jogador/{{ categoria }}/{{ jogador }}">
 
+                        <button>
+                            ✏️ Editar
+                        </button>
 
+                    </a>
 
-        <h2>Zagueiros</h2>
+                    <a href="/excluir-jogador/{{ categoria }}/{{ jogador }}">
 
-        <ul>
+                        <button>
+                            🗑️ Excluir
+                        </button>
 
-            {% for jogador in zagueiros %}
+                    </a>
 
-                <li>{{ jogador }}</li>
-
-            {% endfor %}
-
-        </ul>
-
-
-
-        <h2>Atacantes</h2>
-
-        <ul>
-
-            {% for jogador in atacantes %}
-
-                <li>{{ jogador }}</li>
+                </div>
 
             {% endfor %}
 
-        </ul>
+        {% endfor %}
 
-        <br>
+        <div class="novo">
+
+            <a href="/novo-jogador">
+
+                <button>
+                    ➕ Cadastrar novo jogador
+                </button>
+
+            </a>
+
+        </div>
+
+        <br><br>
 
         <a href="/">
             Voltar
@@ -1121,11 +1152,195 @@ def jogadores():
 
     return render_template_string(
         html,
-        goleiros=goleiros,
-        zagueiros=zagueiros,
-        atacantes=atacantes
+        dados=dados_jogadores
     )
 
+@app.route("/novo-jogador", methods=["GET", "POST"])
+def novo_jogador():
+
+    if request.method == "POST":
+
+        nome = request.form["nome"]
+
+        categoria = request.form["categoria"]
+
+        dados = carregar_jogadores()
+
+        dados[categoria].append(nome)
+
+        salvar_jogadores(dados)
+
+        return redirect("/jogadores")
+
+
+    html = """
+
+    <html>
+
+    <body style="font-family: Arial; text-align:center; padding:40px; font-size:26px;">
+
+        <h1>Cadastrar Jogador</h1>
+
+        <form method="POST">
+
+            <input
+                type="text"
+                name="nome"
+                placeholder="Nome do jogador"
+                required
+                style="font-size:24px; padding:10px;"
+            >
+
+            <br><br>
+
+            <select
+                name="categoria"
+                style="font-size:24px; padding:10px;"
+            >
+
+                <option value="goleiros">
+                    Goleiro
+                </option>
+
+                <option value="zagueiros">
+                    Zagueiro
+                </option>
+
+                <option value="atacantes">
+                    Atacante
+                </option>
+
+            </select>
+
+            <br><br>
+
+            <button
+                type="submit"
+                style="font-size:24px; padding:14px;"
+            >
+                Salvar
+            </button>
+
+        </form>
+
+    </body>
+
+    </html>
+
+    """
+
+    return render_template_string(html)
+
+@app.route("/excluir-jogador/<categoria>/<nome>")
+def excluir_jogador(categoria, nome):
+
+    dados = carregar_jogadores()
+
+    dados[categoria].remove(nome)
+
+    salvar_jogadores(dados)
+
+    return redirect("/jogadores")
+
+@app.route(
+    "/editar-jogador/<categoria>/<nome>",
+    methods=["GET", "POST"]
+)
+def editar_jogador(categoria, nome):
+
+    dados = carregar_jogadores()
+
+    if request.method == "POST":
+
+        novo_nome = request.form["novo_nome"]
+
+        nova_categoria = request.form["nova_categoria"]
+
+
+        dados[categoria].remove(nome)
+
+        dados[nova_categoria].append(novo_nome)
+
+        salvar_jogadores(dados)
+
+        return redirect("/jogadores")
+
+
+    html = """
+
+    <html>
+
+    <body style="font-family: Arial; text-align:center; padding:40px; font-size:26px;">
+
+        <h1>Editar Jogador</h1>
+
+        <form method="POST">
+
+            <input
+                type="text"
+                name="novo_nome"
+                value="{{ nome }}"
+                style="font-size:24px; padding:10px;"
+            >
+
+            <br><br>
+
+            <select
+                name="nova_categoria"
+                style="font-size:24px; padding:10px;"
+            >
+
+                <option
+                    value="goleiros"
+                    {% if categoria == "goleiros" %}
+                        selected
+                    {% endif %}
+                >
+                    Goleiro
+                </option>
+
+                <option
+                    value="zagueiros"
+                    {% if categoria == "zagueiros" %}
+                        selected
+                    {% endif %}
+                >
+                    Zagueiro
+                </option>
+
+                <option
+                    value="atacantes"
+                    {% if categoria == "atacantes" %}
+                        selected
+                    {% endif %}
+                >
+                    Atacante
+                </option>
+
+            </select>
+
+            <br><br>
+
+            <button
+                type="submit"
+                style="font-size:24px; padding:14px;"
+            >
+                Salvar alterações
+            </button>
+
+        </form>
+
+    </body>
+
+    </html>
+
+    """
+
+    return render_template_string(
+        html,
+        nome=nome,
+        categoria=categoria
+    )
 
 # ===================== EXECUÇÃO =====================
 
