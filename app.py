@@ -1072,6 +1072,28 @@ def proximo_jogo():
 
         </div>
 
+        <a
+            href="https://wa.me/?text={{ mensagem_whatsapp | urlencode }}"
+            target="_blank"
+        >
+
+            <button
+                style="
+                    background-color: #25D366;
+                    color: white;
+                    padding: 20px;
+                    font-size: 26px;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                "
+            >
+                📲 ENVIAR TIMES NO WHATSAPP
+            </button>
+
+        </a>
+
+
         <br><br>
 
         <a
@@ -1097,29 +1119,6 @@ def proximo_jogo():
                 "
             >
                 ⚠️ AVISAR QUE PARTIDA JÁ ACONTECEU
-            </button>
-
-        </a>
-
-        <br><br>
-
-        <a
-            href="https://wa.me/?text={{ mensagem_whatsapp | urlencode }}"
-            target="_blank"
-        >
-
-            <button
-                style="
-                    background-color: #25D366;
-                    color: white;
-                    padding: 20px;
-                    font-size: 26px;
-                    border: none;
-                    border-radius: 12px;
-                    cursor: pointer;
-                "
-            >
-                📲 ENVIAR TIMES NO WHATSAPP
             </button>
 
         </a>
@@ -1395,7 +1394,12 @@ def jogadores():
 
             <a href="/novo-jogador">
 
-                <button>
+                <button
+                    style="
+                        padding: 10px 18px;
+                        font-size: 20px;
+                    "
+                >
                     ➕ Cadastrar novo jogador
                 </button>
 
@@ -1425,7 +1429,7 @@ def novo_jogador():
 
     if request.method == "POST":
 
-        nome = request.form["nome"]
+        nome = request.form["nome"].strip()
 
         categoria = request.form["categoria"]
 
@@ -1517,7 +1521,7 @@ def editar_jogador(categoria, nome):
 
     if request.method == "POST":
 
-        novo_nome = request.form["novo_nome"]
+        novo_nome = request.form["novo_nome"].strip()
 
         nova_categoria = request.form["nova_categoria"]
 
@@ -1711,4 +1715,7 @@ def finalizar_jogo():
 # ===================== EXECUÇÃO =====================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+        debug=True,
+        use_reloader=False
+    )
