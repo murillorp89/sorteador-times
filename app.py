@@ -8,6 +8,19 @@ app = Flask(__name__)
 
 ARQUIVO_HISTORICO = "historico.json"
 
+ARQUIVO_JOGADORES = "jogadores.json"
+
+
+def carregar_jogadores():
+
+    with open(
+        ARQUIVO_JOGADORES,
+        "r",
+        encoding="utf-8"
+    ) as arquivo:
+
+        return json.load(arquivo)
+
 
 def carregar_historico():
 
@@ -57,31 +70,13 @@ def salvar_historico(time_1, time_2, data_jogo):
 
 # ===================== DADOS =====================
 
-goleiros = ["Júlio", "Fernando", "Júnior"]
+dados_jogadores = carregar_jogadores()
 
-zagueiros = [
-    "Wellinton",
-    "Airton",
-    "Fabricio",
-    "Diogo",
-    "Roberson"
-]
+goleiros = dados_jogadores["goleiros"]
 
-atacantes = [
-    "Daniel",
-    "Henry",
-    "Du",
-    "Hudson",
-    "Dênis",
-    "Lucas",
-    "Scott",
-    "Caio",
-    "Val",
-    "Renan",
-    "Hermes",
-    "Douglas"
-]
+zagueiros = dados_jogadores["zagueiros"]
 
+atacantes = dados_jogadores["atacantes"]
 
 # ===================== MENU =====================
 
