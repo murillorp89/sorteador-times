@@ -10,6 +10,8 @@ ARQUIVO_HISTORICO = "historico.json"
 
 ARQUIVO_JOGADORES = "jogadores.json"
 
+ARQUIVO_PROXIMO_JOGO = "proximo_jogo.json"
+
 
 def carregar_jogadores():
 
@@ -25,6 +27,37 @@ def salvar_jogadores(dados):
 
     with open(
         ARQUIVO_JOGADORES,
+        "w",
+        encoding="utf-8"
+    ) as arquivo:
+
+        json.dump(
+            dados,
+            arquivo,
+            ensure_ascii=False,
+            indent=4
+        )
+
+def carregar_proximo_jogo():
+
+    try:
+
+        with open(
+            ARQUIVO_PROXIMO_JOGO,
+            "r",
+            encoding="utf-8"
+        ) as arquivo:
+
+            return json.load(arquivo)
+
+    except:
+
+        return {}
+
+def salvar_proximo_jogo(dados):
+
+    with open(
+        ARQUIVO_PROXIMO_JOGO,
         "w",
         encoding="utf-8"
     ) as arquivo:
@@ -710,25 +743,52 @@ def sortear():
     "/salvar-proximo-jogo",
     methods=["POST"]
 )
-def salvar_proximo_jogo():
+def salvar_proximo_jogo_rota():
 
-    time_1 = json.loads(
+    time_1_original = json.loads(
         request.form["time_1"]
     )
 
-    time_2 = json.loads(
+    time_2_original = json.loads(
         request.form["time_2"]
     )
 
 
-    proximo_sabado = "16/05/2026"
+    time_1 = []
+
+    for jogador in time_1_original:
+
+        time_1.append({
+
+            "nome": jogador,
+
+            "pagou": False
+        })
 
 
-    salvar_historico(
-        time_1,
-        time_2,
-        proximo_sabado
-    )
+    time_2 = []
+
+    for jogador in time_2_original:
+
+        time_2.append({
+
+            "nome": jogador,
+
+            "pagou": False
+        })
+
+
+    dados = {
+
+        "data": "16/05/2026",
+
+        "time_1": time_1,
+
+        "time_2": time_2
+    }
+
+
+    salvar_proximo_jogo(dados)
 
 
     return """
@@ -737,23 +797,28 @@ def salvar_proximo_jogo():
         Próximo jogo salvo com sucesso.
     </h1>
 
-    <br>
+    <br><br>
 
-    <a href='/'>
+    <a href="/proximo-jogo">
+        Ver próximo jogo
+    </a>
+
+    <br><br>
+
+    <a href="/">
         Voltar ao menu
     </a>
 
     """
-
 
 # ===================== PRÓXIMO JOGO =====================
 
 @app.route("/proximo-jogo")
 def proximo_jogo():
 
-    historico = carregar_historico()
+    jogo = carregar_proximo_jogo()
 
-    if not historico:
+    if not jogo:
 
         return """
 
@@ -769,7 +834,6 @@ def proximo_jogo():
 
         """
 
-    jogo = historico[0]
 
     html = """
 
@@ -820,13 +884,17 @@ def proximo_jogo():
 
             .pagar {
                 cursor: pointer;
-                color: red;
+                text-decoration: none;
                 font-weight: bold;
                 margin-left: 12px;
                 font-size: 28px;
             }
 
-            .pago {
+            .vermelho {
+                color: red;
+            }
+
+            .verde {
                 color: green;
             }
 
@@ -852,14 +920,20 @@ def proximo_jogo():
 
                         <li>
 
-                            {{ jogador }}
+                            {{ jogador.nome }}
 
-                            <span
-                                class="pagar"
+                            <a
+                                href="/toggle-pagamento/time_1/{{ loop.index0 }}"
+                                class="pagar
+                                {% if jogador.pagou %}
+                                    verde
+                                {% else %}
+                                    vermelho
+                                {% endif %}"
                                 title="Sinalizar pagamento da quadra"
                             >
                                 $
-                            </span>
+                            </a>
 
                         </li>
 
@@ -881,14 +955,20 @@ def proximo_jogo():
 
                         <li>
 
-                            {{ jogador }}
+                            {{ jogador.nome }}
 
-                            <span
-                                class="pagar"
+                            <a
+                                href="/toggle-pagamento/time_2/{{ loop.index0 }}"
+                                class="pagar
+                                {% if jogador.pagou %}
+                                    verde
+                                {% else %}
+                                    vermelho
+                                {% endif %}"
                                 title="Sinalizar pagamento da quadra"
                             >
                                 $
-                            </span>
+                            </a>
 
                         </li>
 
@@ -906,28 +986,6 @@ def proximo_jogo():
             Voltar
         </a>
 
-        <script>
-
-        const botoesPagamento =
-            document.querySelectorAll(
-                '.pagar'
-            )
-
-        botoesPagamento.forEach(botao => {
-
-            botao.addEventListener(
-                'click',
-                () => {
-
-                    botao.classList.toggle(
-                        'pago'
-                    )
-                }
-            )
-        })
-
-        </script>
-
     </body>
 
     </html>
@@ -938,7 +996,6 @@ def proximo_jogo():
         html,
         jogo=jogo
     )
-
 
 # ===================== HISTÓRICO =====================
 
@@ -1341,6 +1398,21 @@ def editar_jogador(categoria, nome):
         nome=nome,
         categoria=categoria
     )
+
+@app.route(
+    "/toggle-pagamento/<time>/<int:indice>"
+)
+def toggle_pagamento(time, indice):
+
+    jogo = carregar_proximo_jogo()
+
+    jogador = jogo[time][indice]
+
+    jogador["pagou"] = not jogador["pagou"]
+
+    salvar_proximo_jogo(jogo)
+
+    return redirect("/proximo-jogo")
 
 # ===================== EXECUÇÃO =====================
 

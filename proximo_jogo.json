@@ -1,0 +1,63 @@
+{
+    "data": "16/05/2026",
+    "time_1": [
+        {
+            "nome": "Júlio",
+            "pagou": false
+        },
+        {
+            "nome": "Diogo",
+            "pagou": false
+        },
+        {
+            "nome": "Airton",
+            "pagou": false
+        },
+        {
+            "nome": "Roberson",
+            "pagou": false
+        },
+        {
+            "nome": "Lucas",
+            "pagou": false
+        },
+        {
+            "nome": "Scott",
+            "pagou": false
+        },
+        {
+            "nome": "Daniel",
+            "pagou": false
+        }
+    ],
+    "time_2": [
+        {
+            "nome": "Fernando",
+            "pagou": false
+        },
+        {
+            "nome": "Fabricio",
+            "pagou": false
+        },
+        {
+            "nome": "Wellinton",
+            "pagou": false
+        },
+        {
+            "nome": "Dênis",
+            "pagou": false
+        },
+        {
+            "nome": "Hudson",
+            "pagou": false
+        },
+        {
+            "nome": "Henry",
+            "pagou": false
+        },
+        {
+            "nome": "Du",
+            "pagou": false
+        }
+    ]
+}
