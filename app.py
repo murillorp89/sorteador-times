@@ -96,23 +96,33 @@ def index():
 
         <title>FutSábado</title>
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <style>
 
             body {
                 font-family: Arial;
                 padding: 30px;
+                text-align: center;
+                font-size: 24px;
             }
 
             h1 {
                 color: #222;
+                font-size: 42px;
+                margin-bottom: 40px;
             }
 
             button {
-                width: 250px;
-                padding: 15px;
-                margin-top: 15px;
-                font-size: 16px;
+                width: 320px;
+                padding: 22px;
+                margin-top: 20px;
+                font-size: 28px;
                 cursor: pointer;
+                border-radius: 12px;
             }
 
         </style>
@@ -175,26 +185,46 @@ def pagina_sorteio():
 
         <title>Sorteador de Times</title>
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <style>
 
             body {
                 font-family: Arial;
                 padding: 20px;
+                text-align: center;
+                font-size: 26px;
             }
 
             h1 {
                 color: #222;
+                font-size: 42px;
             }
 
             h2 {
-                margin-top: 30px;
+                margin-top: 50px;
+                font-size: 34px;
             }
 
             button {
-                margin-top: 30px;
-                padding: 10px 20px;
-                font-size: 16px;
+                margin-top: 40px;
+                padding: 20px 30px;
+                font-size: 28px;
                 cursor: pointer;
+                border-radius: 12px;
+            }
+
+            input[type="checkbox"] {
+                transform: scale(2);
+                margin-right: 18px;
+            }
+
+            .linha-jogador {
+                margin-top: 22px;
+                margin-bottom: 22px;
             }
 
             input:disabled {
@@ -215,16 +245,18 @@ def pagina_sorteio():
 
             {% for jogador in goleiros %}
 
-                <input
-                    type="checkbox"
-                    name="goleiros"
-                    value="{{ jogador }}"
-                    class="goleiro"
-                >
+                <div class="linha-jogador">
 
-                {{ jogador }}
+                    <input
+                        type="checkbox"
+                        name="goleiros"
+                        value="{{ jogador }}"
+                        class="goleiro"
+                    >
 
-                <br>
+                    {{ jogador }}
+
+                </div>
 
             {% endfor %}
 
@@ -234,16 +266,18 @@ def pagina_sorteio():
 
             {% for jogador in zagueiros %}
 
-                <input
-                    type="checkbox"
-                    name="zagueiros"
-                    value="{{ jogador }}"
-                    class="jogador"
-                >
+                <div class="linha-jogador">
 
-                {{ jogador }}
+                    <input
+                        type="checkbox"
+                        name="zagueiros"
+                        value="{{ jogador }}"
+                        class="jogador"
+                    >
 
-                <br>
+                    {{ jogador }}
+
+                </div>
 
             {% endfor %}
 
@@ -253,16 +287,18 @@ def pagina_sorteio():
 
             {% for jogador in atacantes %}
 
-                <input
-                    type="checkbox"
-                    name="atacantes"
-                    value="{{ jogador }}"
-                    class="jogador"
-                >
+                <div class="linha-jogador">
 
-                {{ jogador }}
+                    <input
+                        type="checkbox"
+                        name="atacantes"
+                        value="{{ jogador }}"
+                        class="jogador"
+                    >
 
-                <br>
+                    {{ jogador }}
+
+                </div>
 
             {% endfor %}
 
@@ -450,8 +486,6 @@ def sortear():
     time_2 = []
 
 
-    # ===================== GOLEIROS =====================
-
     goleiros_sorteio = goleiros_jogando.copy()
 
     goleiro_sorteado = random.choice(
@@ -464,8 +498,6 @@ def sortear():
 
     time_2.append(goleiros_sorteio[0])
 
-
-    # ===================== ZAGUEIROS =====================
 
     zagueiros_sorteio = zagueiros_jogando.copy()
 
@@ -486,8 +518,6 @@ def sortear():
             time_2.append(sorteado)
 
 
-    # ===================== ATACANTES =====================
-
     atacantes_sorteio = atacantes_jogando.copy()
 
     while len(time_1) < 7 or len(time_2) < 7:
@@ -507,8 +537,6 @@ def sortear():
             time_2.append(sorteado)
 
 
-    # ===================== RESULTADO =====================
-
     html_resultado = """
 
     <html>
@@ -517,22 +545,50 @@ def sortear():
 
         <title>Times Sorteados</title>
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <style>
 
             body {
                 font-family: Arial;
                 padding: 20px;
+                text-align: center;
+                font-size: 26px;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            h2 {
+                font-size: 34px;
             }
 
             .times {
                 display: flex;
-                gap: 60px;
+                justify-content: center;
+                gap: 80px;
+                flex-wrap: wrap;
+            }
+
+            ul {
+                list-style-position: inside;
+                padding: 0;
+            }
+
+            li {
+                margin-top: 16px;
+                margin-bottom: 16px;
             }
 
             button {
-                padding: 10px 20px;
-                font-size: 16px;
+                padding: 20px 30px;
+                font-size: 26px;
                 cursor: pointer;
+                border-radius: 12px;
             }
 
         </style>
@@ -669,9 +725,7 @@ def salvar_proximo_jogo():
     return """
 
     <h1>
-
         Próximo jogo salvo com sucesso.
-
     </h1>
 
     <br>
@@ -716,24 +770,51 @@ def proximo_jogo():
 
         <title>Próximo Jogo</title>
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <style>
 
             body {
                 font-family: Arial;
                 padding: 20px;
+                text-align: center;
+                font-size: 26px;
+            }
+
+            h1 {
+                font-size: 40px;
+            }
+
+            h2 {
+                font-size: 34px;
             }
 
             .times {
                 display: flex;
-                gap: 60px;
+                justify-content: center;
+                gap: 80px;
+                flex-wrap: wrap;
+            }
+
+            ul {
+                list-style-position: inside;
+                padding: 0;
+            }
+
+            li {
+                margin-top: 18px;
+                margin-bottom: 18px;
             }
 
             .pagar {
                 cursor: pointer;
                 color: red;
                 font-weight: bold;
-                margin-left: 8px;
-                font-size: 18px;
+                margin-left: 12px;
+                font-size: 28px;
             }
 
             .pago {
@@ -816,7 +897,6 @@ def proximo_jogo():
             Voltar
         </a>
 
-
         <script>
 
         const botoesPagamento =
@@ -866,15 +946,26 @@ def historico():
 
         <title>Jogos Anteriores</title>
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <style>
 
             body {
                 font-family: Arial;
                 padding: 20px;
+                text-align: center;
+                font-size: 26px;
+            }
+
+            h1 {
+                font-size: 42px;
             }
 
             .jogo {
-                margin-bottom: 40px;
+                margin-bottom: 50px;
             }
 
         </style>
@@ -940,11 +1031,37 @@ def jogadores():
 
         <title>Jogadores</title>
 
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1"
+        >
+
         <style>
 
             body {
                 font-family: Arial;
                 padding: 20px;
+                text-align: center;
+                font-size: 26px;
+            }
+
+            h1 {
+                font-size: 42px;
+            }
+
+            h2 {
+                font-size: 34px;
+                margin-top: 40px;
+            }
+
+            ul {
+                list-style-position: inside;
+                padding: 0;
+            }
+
+            li {
+                margin-top: 14px;
+                margin-bottom: 14px;
             }
 
         </style>
