@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template_string, redirect
 import random
 import json
+import copy
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -115,16 +117,6 @@ def salvar_historico(time_1, time_2, data_jogo):
         )
 
 
-# ===================== DADOS =====================
-
-dados_jogadores = carregar_jogadores()
-
-goleiros = dados_jogadores["goleiros"]
-
-zagueiros = dados_jogadores["zagueiros"]
-
-atacantes = dados_jogadores["atacantes"]
-
 # ===================== MENU =====================
 
 @app.route("/")
@@ -136,7 +128,7 @@ def index():
 
     <head>
 
-        <title>FutSábado</title>
+        <title>Futebol de Sábado</title>
 
         <meta
             name="viewport"
@@ -173,7 +165,7 @@ def index():
 
     <body>
 
-        <h1>FutSábado</h1>
+        <h1>Futebol de Sábado</h1>
 
         <a href="/sortear-times">
             <button>
@@ -218,6 +210,20 @@ def index():
 
 @app.route("/sortear-times")
 def pagina_sorteio():
+
+    dados_jogadores = carregar_jogadores()
+
+    goleiros = sorted(
+        dados_jogadores["goleiros"]
+    )
+
+    zagueiros = sorted(
+        dados_jogadores["zagueiros"]
+    )
+
+    atacantes = sorted(
+        dados_jogadores["atacantes"]
+    )
 
     html = """
 
@@ -534,11 +540,11 @@ def sortear():
         goleiros_sorteio
     )
 
-    time_1.append(goleiro_sorteado)
+    time_1.append("🥅 " + goleiro_sorteado)
 
     goleiros_sorteio.remove(goleiro_sorteado)
 
-    time_2.append(goleiros_sorteio[0])
+    time_2.append("🥅 " + goleiros_sorteio[0])
 
 
     zagueiros_sorteio = zagueiros_jogando.copy()
@@ -683,15 +689,50 @@ def sortear():
 
         <br>
 
-        <a href="/sortear-times">
+        <form
+            action="/sortear"
+            method="POST"
+        >
 
-            <button>
+            {% for jogador in goleiros_jogando %}
+
+                <input
+                    type="hidden"
+                    name="goleiros"
+                    value="{{ jogador }}"
+                >
+
+            {% endfor %}
+
+            {% for jogador in zagueiros_jogando %}
+
+                <input
+                    type="hidden"
+                    name="zagueiros"
+                    value="{{ jogador }}"
+                >
+
+            {% endfor %}
+
+            {% for jogador in atacantes_jogando %}
+
+                <input
+                    type="hidden"
+                    name="atacantes"
+                    value="{{ jogador }}"
+                >
+
+            {% endfor %}
+
+            <button type="submit">
+
                 Fazer novo sorteio
+
             </button>
 
-        </a>
+        </form>
 
-        <br><br>
+        <br>
 
         <form
             action="/salvar-proximo-jogo"
@@ -718,6 +759,24 @@ def sortear():
 
         </form>
 
+        <br>
+
+        <a
+            href="https://wa.me/?text={{ mensagem_whatsapp | urlencode }}"
+            target="_blank"
+        >
+
+            <button
+                style="
+                    background-color: #25D366;
+                    color: white;
+                "
+            >
+                📲 Enviar times no WhatsApp
+            </button>
+
+        </a>
+
         <br><br>
 
         <a href="/">
@@ -730,10 +789,26 @@ def sortear():
 
     """
 
+    mensagem_whatsapp = f"""
+
+    🏆 TIMES SORTEADOS — FUTEBOL DE SÁBADO
+
+    🔵 TIME 1
+    {chr(10).join(time_1)}
+
+    🔴 TIME 2
+    {chr(10).join(time_2)}
+
+    """
+
     return render_template_string(
         html_resultado,
         time_1=time_1,
-        time_2=time_2
+        time_2=time_2,
+        goleiros_jogando=goleiros_jogando,
+        zagueiros_jogando=zagueiros_jogando,
+        atacantes_jogando=atacantes_jogando,
+        mensagem_whatsapp=mensagem_whatsapp
     )
 
 
@@ -777,10 +852,25 @@ def salvar_proximo_jogo_rota():
             "pagou": False
         })
 
+    hoje = datetime.now()
+
+    dias_ate_sabado = (5 - hoje.weekday()) % 7
+
+    if dias_ate_sabado == 0:
+        dias_ate_sabado = 7
+
+    proximo_sabado = hoje + timedelta(
+        days=dias_ate_sabado
+    )
+
+    data_formatada = proximo_sabado.strftime(
+        "%d/%m/%Y"
+    )
+
 
     dados = {
 
-        "data": "16/05/2026",
+        "data": data_formatada,
 
         "time_1": time_1,
 
@@ -980,7 +1070,59 @@ def proximo_jogo():
 
         </div>
 
-        <br>
+        <br><br>
+
+        <a
+            href="/finalizar-jogo"
+
+            onclick="
+                return confirm(
+                    'Tem certeza que o jogo já foi realizado? Esta ação moverá os times para o histórico.'
+                )
+            "
+        >
+
+            <button
+                style="
+                    background-color: orange;
+                    color: white;
+                    padding: 24px;
+                    font-size: 30px;
+                    font-weight: bold;
+                    border: none;
+                    border-radius: 14px;
+                    cursor: pointer;
+                "
+            >
+                ⚠️ AVISAR QUE PARTIDA JÁ ACONTECEU
+            </button>
+
+        </a>
+
+        <br><br>
+
+        <a
+            href="https://wa.me/?text={{ mensagem_whatsapp | urlencode }}"
+            target="_blank"
+        >
+
+            <button
+                style="
+                    background-color: #25D366;
+                    color: white;
+                    padding: 20px;
+                    font-size: 26px;
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                "
+            >
+                📲 ENVIAR TIMES NO WHATSAPP
+            </button>
+
+        </a>
+
+        <br><br>
 
         <a href="/">
             Voltar
@@ -992,9 +1134,22 @@ def proximo_jogo():
 
     """
 
+    mensagem_whatsapp = f"""
+
+    🏆 PRÓXIMO JOGO — FUTEBOL DE SÁBADO
+
+    🔵 TIME 1
+    {chr(10).join([j["nome"] for j in jogo["time_1"]])}
+
+    🔴 TIME 2
+    {chr(10).join([j["nome"] for j in jogo["time_2"]])}
+
+    """
+
     return render_template_string(
         html,
-        jogo=jogo
+        jogo=jogo,
+        mensagem_whatsapp=mensagem_whatsapp
     )
 
 # ===================== HISTÓRICO =====================
@@ -1042,7 +1197,7 @@ def historico():
 
         <h1>Jogos Anteriores</h1>
 
-        {% for jogo in historico[1:] %}
+        {% for jogo in historico %}
 
             <div class="jogo">
 
@@ -1052,13 +1207,58 @@ def historico():
 
                 <b>Time 1:</b>
 
-                {{ jogo.time_1 | join(', ') }}
+                {% for jogador in jogo.time_1 %}
+
+                    {{ jogador.nome }}
+
+                    <span
+                        style="
+                            color:
+                            {% if jogador.pagou == true %}
+                                green
+                            {% else %}
+                                red
+                            {% endif %};
+
+                            font-weight:bold;
+                        "
+                    >
+                        $
+                    </span>
+
+                    {% if not loop.last %}
+                        ,
+                    {% endif %}
+
+                {% endfor %}
 
                 <br><br>
 
                 <b>Time 2:</b>
 
-                {{ jogo.time_2 | join(', ') }}
+                {% for jogador in jogo.time_2 %}
+
+                    {{ jogador.nome }}
+
+                    <span
+                        style="
+                            color:
+                            {% if jogador.pagou == true %}
+                                green
+                            {% else %}
+                                red
+                            {% endif %};
+
+                            font-weight:bold;
+                        "
+                    >
+                        $
+                    </span>
+                    {% if not loop.last %}
+                        ,
+                    {% endif %}
+
+                {% endfor %}
 
             </div>
 
@@ -1090,6 +1290,12 @@ def historico():
 def jogadores():
 
     dados_jogadores = carregar_jogadores()
+
+    for categoria in dados_jogadores:
+
+        dados_jogadores[categoria].sort(
+            key=str.lower
+        )
 
     html = """
 
@@ -1413,6 +1619,92 @@ def toggle_pagamento(time, indice):
     salvar_proximo_jogo(jogo)
 
     return redirect("/proximo-jogo")
+
+@app.route("/finalizar-jogo")
+def finalizar_jogo():
+
+    jogo = carregar_proximo_jogo()
+
+
+    if not jogo:
+
+        return """
+
+        <h1>
+            Não existe próximo jogo definido.
+        </h1>
+
+        <br>
+
+        <a href="/">
+            Voltar
+        </a>
+
+        """
+
+
+    historico = carregar_historico()
+
+
+    historico.insert(0, copy.deepcopy(jogo))
+
+
+    with open(
+        ARQUIVO_HISTORICO,
+        "w",
+        encoding="utf-8"
+    ) as arquivo:
+
+        json.dump(
+            historico,
+            arquivo,
+            ensure_ascii=False,
+            indent=4
+        )
+
+
+    salvar_proximo_jogo({})
+
+
+    return """
+
+    <html>
+
+    <body
+        style="
+            font-family: Arial;
+            text-align: center;
+            padding: 40px;
+            font-size: 28px;
+        "
+    >
+
+        <h1>
+            ✅ Jogo movido para o histórico
+        </h1>
+
+        <br><br>
+
+        <a href="/">
+
+            <button
+                style="
+                    padding: 20px;
+                    font-size: 24px;
+                    cursor: pointer;
+                "
+            >
+                Voltar ao menu
+            </button>
+
+        </a>
+
+    </body>
+
+    </html>
+
+    """
+
 
 # ===================== EXECUÇÃO =====================
 
