@@ -112,6 +112,7 @@ def index():
                 padding: 15px;
                 margin-top: 15px;
                 font-size: 16px;
+                cursor: pointer;
             }
 
         </style>
@@ -123,41 +124,33 @@ def index():
         <h1>FutSábado</h1>
 
         <a href="/sortear-times">
-
             <button>
                 Sortear Times
             </button>
-
         </a>
 
         <br>
 
         <a href="/proximo-jogo">
-
             <button>
                 Próximo Jogo
             </button>
-
         </a>
 
         <br>
 
         <a href="/historico">
-
             <button>
                 Jogos Anteriores
             </button>
-
         </a>
 
         <br>
 
         <a href="/jogadores">
-
             <button>
                 Jogadores Cadastrados
             </button>
-
         </a>
 
     </body>
@@ -201,6 +194,11 @@ def pagina_sorteio():
                 margin-top: 30px;
                 padding: 10px 20px;
                 font-size: 16px;
+                cursor: pointer;
+            }
+
+            input:disabled {
+                opacity: 0.4;
             }
 
         </style>
@@ -218,10 +216,10 @@ def pagina_sorteio():
             {% for jogador in goleiros %}
 
                 <input
-                type="checkbox"
-                name="goleiros"
-                value="{{ jogador }}"
-                class="goleiro"
+                    type="checkbox"
+                    name="goleiros"
+                    value="{{ jogador }}"
+                    class="goleiro"
                 >
 
                 {{ jogador }}
@@ -237,10 +235,10 @@ def pagina_sorteio():
             {% for jogador in zagueiros %}
 
                 <input
-                type="checkbox"
-                name="zagueiros"
-                value="{{ jogador }}"
-                class="jogador"
+                    type="checkbox"
+                    name="zagueiros"
+                    value="{{ jogador }}"
+                    class="jogador"
                 >
 
                 {{ jogador }}
@@ -256,10 +254,10 @@ def pagina_sorteio():
             {% for jogador in atacantes %}
 
                 <input
-                type="checkbox"
-                name="atacantes"
-                value="{{ jogador }}"
-                class="jogador"
+                    type="checkbox"
+                    name="atacantes"
+                    value="{{ jogador }}"
+                    class="jogador"
                 >
 
                 {{ jogador }}
@@ -282,8 +280,102 @@ def pagina_sorteio():
             Voltar ao menu
         </a>
 
-    
-    
+
+        <script>
+
+        function atualizarLimites() {
+
+            const goleiros =
+                document.querySelectorAll('.goleiro')
+
+            const todos =
+                document.querySelectorAll(
+                    'input[type="checkbox"]'
+                )
+
+            let goleirosMarcados = 0
+            let totalMarcados = 0
+
+
+            goleiros.forEach(g => {
+
+                if (g.checked) {
+
+                    goleirosMarcados++
+                }
+            })
+
+
+            todos.forEach(j => {
+
+                if (j.checked) {
+
+                    totalMarcados++
+                }
+            })
+
+
+            todos.forEach(j => {
+
+                if (!j.checked) {
+
+                    j.disabled = totalMarcados >= 14
+                }
+            })
+
+
+            goleiros.forEach(g => {
+
+                if (!g.checked) {
+
+                    g.disabled =
+                        goleirosMarcados >= 2
+                }
+            })
+
+
+            if (totalMarcados < 14) {
+
+                todos.forEach(j => {
+
+                    if (
+                        !j.classList.contains(
+                            'goleiro'
+                        )
+                    ) {
+
+                        j.disabled = false
+                    }
+                })
+
+
+                goleiros.forEach(g => {
+
+                    if (!g.checked) {
+
+                        g.disabled =
+                            goleirosMarcados >= 2
+                    }
+                })
+            }
+        }
+
+
+        const checkboxes =
+            document.querySelectorAll(
+                'input[type="checkbox"]'
+            )
+
+        checkboxes.forEach(c => {
+
+            c.addEventListener(
+                'change',
+                atualizarLimites
+            )
+        })
+
+        </script>
+
     </body>
 
     </html>
@@ -303,11 +395,17 @@ def pagina_sorteio():
 @app.route("/sortear", methods=["POST"])
 def sortear():
 
-    goleiros_jogando = request.form.getlist("goleiros")
+    goleiros_jogando = request.form.getlist(
+        "goleiros"
+    )
 
-    zagueiros_jogando = request.form.getlist("zagueiros")
+    zagueiros_jogando = request.form.getlist(
+        "zagueiros"
+    )
 
-    atacantes_jogando = request.form.getlist("atacantes")
+    atacantes_jogando = request.form.getlist(
+        "atacantes"
+    )
 
     todos_jogando = (
         goleiros_jogando
@@ -315,9 +413,6 @@ def sortear():
         + atacantes_jogando
     )
 
-
-
-    # ===================== VALIDAÇÕES =====================
 
     if len(goleiros_jogando) != 2:
 
@@ -333,7 +428,6 @@ def sortear():
         Voltar
         </a>
         """
-
 
 
     if len(todos_jogando) != 14:
@@ -352,17 +446,17 @@ def sortear():
         """
 
 
-
     time_1 = []
     time_2 = []
-
 
 
     # ===================== GOLEIROS =====================
 
     goleiros_sorteio = goleiros_jogando.copy()
 
-    goleiro_sorteado = random.choice(goleiros_sorteio)
+    goleiro_sorteado = random.choice(
+        goleiros_sorteio
+    )
 
     time_1.append(goleiro_sorteado)
 
@@ -371,14 +465,15 @@ def sortear():
     time_2.append(goleiros_sorteio[0])
 
 
-
     # ===================== ZAGUEIROS =====================
 
     zagueiros_sorteio = zagueiros_jogando.copy()
 
     while zagueiros_sorteio:
 
-        sorteado = random.choice(zagueiros_sorteio)
+        sorteado = random.choice(
+            zagueiros_sorteio
+        )
 
         zagueiros_sorteio.remove(sorteado)
 
@@ -391,14 +486,15 @@ def sortear():
             time_2.append(sorteado)
 
 
-
     # ===================== ATACANTES =====================
 
     atacantes_sorteio = atacantes_jogando.copy()
 
     while len(time_1) < 7 or len(time_2) < 7:
 
-        sorteado = random.choice(atacantes_sorteio)
+        sorteado = random.choice(
+            atacantes_sorteio
+        )
 
         atacantes_sorteio.remove(sorteado)
 
@@ -409,7 +505,6 @@ def sortear():
         else:
 
             time_2.append(sorteado)
-
 
 
     # ===================== RESULTADO =====================
@@ -432,6 +527,12 @@ def sortear():
             .times {
                 display: flex;
                 gap: 60px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 16px;
+                cursor: pointer;
             }
 
         </style>
@@ -485,12 +586,19 @@ def sortear():
         <br>
 
         <a href="/sortear-times">
-            Fazer novo sorteio
+
+            <button>
+                Fazer novo sorteio
+            </button>
+
         </a>
 
         <br><br>
 
-        <form action="/salvar-proximo-jogo" method="POST">
+        <form
+            action="/salvar-proximo-jogo"
+            method="POST"
+        >
 
             <input
                 type="hidden"
@@ -533,12 +641,19 @@ def sortear():
 
 # ===================== SALVAR PRÓXIMO JOGO =====================
 
-@app.route("/salvar-proximo-jogo", methods=["POST"])
+@app.route(
+    "/salvar-proximo-jogo",
+    methods=["POST"]
+)
 def salvar_proximo_jogo():
 
-    time_1 = json.loads(request.form["time_1"])
+    time_1 = json.loads(
+        request.form["time_1"]
+    )
 
-    time_2 = json.loads(request.form["time_2"])
+    time_2 = json.loads(
+        request.form["time_2"]
+    )
 
 
     proximo_sabado = "16/05/2026"
@@ -613,6 +728,18 @@ def proximo_jogo():
                 gap: 60px;
             }
 
+            .pagar {
+                cursor: pointer;
+                color: red;
+                font-weight: bold;
+                margin-left: 8px;
+                font-size: 18px;
+            }
+
+            .pago {
+                color: green;
+            }
+
         </style>
 
     </head>
@@ -633,7 +760,18 @@ def proximo_jogo():
 
                     {% for jogador in jogo.time_1 %}
 
-                        <li>{{ jogador }}</li>
+                        <li>
+
+                            {{ jogador }}
+
+                            <span
+                                class="pagar"
+                                title="Sinalizar pagamento da quadra"
+                            >
+                                $
+                            </span>
+
+                        </li>
 
                     {% endfor %}
 
@@ -651,7 +789,18 @@ def proximo_jogo():
 
                     {% for jogador in jogo.time_2 %}
 
-                        <li>{{ jogador }}</li>
+                        <li>
+
+                            {{ jogador }}
+
+                            <span
+                                class="pagar"
+                                title="Sinalizar pagamento da quadra"
+                            >
+                                $
+                            </span>
+
+                        </li>
 
                     {% endfor %}
 
@@ -666,6 +815,29 @@ def proximo_jogo():
         <a href="/">
             Voltar
         </a>
+
+
+        <script>
+
+        const botoesPagamento =
+            document.querySelectorAll(
+                '.pagar'
+            )
+
+        botoesPagamento.forEach(botao => {
+
+            botao.addEventListener(
+                'click',
+                () => {
+
+                    botao.classList.toggle(
+                        'pago'
+                    )
+                }
+            )
+        })
+
+        </script>
 
     </body>
 
